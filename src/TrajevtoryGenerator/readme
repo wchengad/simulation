@@ -1,0 +1,4 @@
+trajectory_generator 生成轨迹
+controller 中间层控制器(input<-- trajectory, output: --> djiros)
+utils  各种工具。 其中： 如果你想在rviz里手动选取航点（航点用来生成轨迹）， 需要编译rviz_plugin， 然后waypoint_generator 把这些航点转成trajectory_generator 需要的数据格式。否则你需要自己写一个接口，把航点发过去给trajectory_generator. uavlaunch 里是一些launch, 只是给你参考一下怎么启动。 其他的可能有用可能没有用
+

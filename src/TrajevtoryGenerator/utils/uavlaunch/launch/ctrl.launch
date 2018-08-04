@@ -1,0 +1,152 @@
+<launch>
+
+	<arg name="uavname" default="$(env UAVNAME)" />
+	<arg name="enable_djisim" default="false" />
+	<arg name="use_jchen" default="false" />
+
+	<arg name="waypoint_type" />
+	
+	<arg name="traj_vel" default="0.0"/>
+	<arg name="traj_acc" default="0.0"/>
+	
+	<arg name="max_velocity" default="0.0" />
+	<arg name="max_acceleration" default="0.0" />
+	<arg name="flight_velocity" default="0.0" />
+	<arg name="flight_acceleration" default="0.0" />
+
+	<node pkg="n1ctrl" type="n1ctrl_node" name="n1ctrl" output="screen">
+		<remap from="~joy" to="/djiros/rc" />
+		<remap from="~odom" to="/odom" />
+		<remap from="~imu" to="/djiros/imu" />
+		<remap from="~cmd" to="/position_cmd" />
+
+		<remap from="~desire_pose" to="/desire_pose" />
+		<remap from="~ctrl" to="/djiros/ctrl" />
+		<remap from="~traj_start_trigger" to="/traj_start_trigger" />
+
+		<rosparam if="$(arg enable_djisim)" 
+			command="load" 
+			file="$(find n1ctrl)/config/djisim.yaml" />
+		
+		<rosparam 
+			unless="$(arg enable_djisim)" 
+			command="load" 
+			file="$(find machine_defined)/config/ctrl_param_$(arg uavname).yaml" />
+	</node>
+
+	<group unless="$(arg use_jchen)">
+		<node pkg="waypoint_generator" type="waypoint_generator" name="waypoint_generator" output="screen">
+			<param name="waypoint_type" type="string" value="$(arg waypoint_type)" />
+			<remap from="~odom" to="/odom" />
+			<remap from="~goal" to="/goal" />
+			<remap from="~waypoints" to="~waypoints" />
+			<remap from="~waypoints_vis" to="~waypoints_vis" />
+			<remap from="~traj_start_trigger" to="/traj_start_trigger" />
+		</node>
+
+		<node pkg="trajectory_generator" type="trajectory_generator" name="trajectory_generator" output="screen">
+			<param name="add_waypoint_dist_thr" type="double" value="99.0" />
+			<param name="add_waypoint_theta_thr" type="double" value="99.0" /> 
+			<param name="traj_vel" type="double" value="$(arg traj_vel)" />
+			<param name="traj_acc" type="double" value="$(arg traj_acc)" /> 
+			<remap from="~odom" to="/odom" />
+			<remap from="~waypoints" to="/waypoint_generator/waypoints" />
+			<remap from="~position_cmd" to="/position_cmd" />
+			<remap from="~path" to="/raw_path_vis" />
+			<remap from="~traj" to="/traj_path_vis" />
+		</node>
+	</group>
+
+	<group if="$(arg use_jchen)">
+		<node pkg="waypoint_generator" type="waypoint_generator" name="waypoint_generator" output="screen">
+			<param name="waypoint_type" type="string" value="$(arg waypoint_type)" />
+			<remap from="~odom" to="/odom" />
+			<remap from="~goal" to="/goal" />
+			<remap from="~waypoints" to="/waypoint_generator/waypoints" />
+			<remap from="~waypoints_vis" to="/waypoints_vis" />
+			<remap from="~traj_start_trigger" to="/traj_start_trigger" />
+		</node>
+		
+	    <node
+	        pkg     = "voxel_trajectory"
+	        type    = "grid_trajectory_generator_node"
+	        output  = "screen"
+	        name    = "trajectory_generator">
+
+	        <param  name = "init/visualization" value = "true"/>
+
+	        <param  name = "setting/flight_height_limit" value = "2.5"/>
+	        <param  name = "setting/extra_obstacle_height" value = "2.5"/>
+	        <param  name = "setting/allowed_ground_height" value = "-1.0"/>
+	        <param  name = "setting/laser_scan_step" value = "0.2"/>
+	        <param  name = "setting/laser_scan_resolution" value = "0.1"/>
+	        <param  name = "setting/ratio_z_init_velocity" value = "0.5"/>
+
+	        <param  name = "scan/boundary/lower_x"  value = "-20.0"/>
+	        <param  name = "scan/boundary/upper_x"  value = "20.0"/>
+	        <param  name = "scan/boundary/lower_y"  value = "-20.0"/>
+	        <param  name = "scan/boundary/upper_y"  value = "20.0"/>
+	        <param  name = "scan/boundary/lower_z"  value = "-20.0"/>
+	        <param  name = "scan/boundary/upper_z"  value = "20.0"/>
+
+	        <param  name = "map/boundary/lower_x"  value = "-20.0"/>
+	        <param  name = "map/boundary/upper_x"  value = "20.0"/>
+	        <param  name = "map/boundary/lower_y"  value = "-20.0"/>
+	        <param  name = "map/boundary/upper_y"  value = "20.0"/>
+	        <param  name = "map/boundary/lower_z"  value = "0.0"/>
+	        <param  name = "map/boundary/upper_z"  value = "40.0"/>
+	        <param  name = "map/resolution"  value = "0.008"/>
+	        <param  name = "map/safe_margin"  value = "0.7"/>
+	        <param  name = "map/inner_margin"  value = "0.5"/>
+	        <param  name = "map/map_duration"  value = "50000.0"/>
+
+	        <param  name = "max_velocity"  value = "2.0"/>
+	        <param  name = "max_acceleration"  value = "1.0"/>
+	        <param  name = "flight_velocity"  value = "2.0"/>
+	        <param  name = "flight_acceleration"  value = "1.0"/>
+
+	        <!-- subscribed topics -->
+	        <remap  from = "~laser_scan"        to = "/scan"/>
+	        <remap  from = "~odometry"          to = "/odom"/>
+	        <remap  from = "~waypoints"         to = "/waypoint_generator/waypoints"/>
+	        <remap  from = "~fuck_map_trigger"         to = "/traj_start_trigger"/>
+
+	        <!-- advertised services -->
+	        <remap  from = "~CheckObstacleByPoints"     to = "~obstacle_service"/>
+
+	        <!-- advertised topics -->
+	        <remap  from = "~desired_state"     to = "/position_cmd"/>
+	        <remap  from = "~trajectory"        to = "~trajectory"/>
+
+	        <!-- advertised visualization topics -->
+	        <remap  from = "~map_vis"           to = "/trajectory_generator/map_points"/>
+	        <remap  from = "~trajectory_vis"    to = "/trajectory_generator/line_strip"/>
+	        <remap  from = "~path_vis"          to = "/trajectory_generator/voxel_path"/>
+	        <remap  from = "~inflated_path_vis" to = "/trajectory_generator/inflated_path"/>
+	        <remap  from = "~checkpoints_vis"   to = "/trajectory_generator/check_point"/>
+	    </node>
+
+	    <node
+	        pkg     = "voxel_trajectory"
+	        type    = "grid_trajectory_server_node"
+	        output  = "screen"
+	        name    = "trajectory_server">
+	        
+	        <!-- advertised topics -->
+	        <remap  from = "~trajectory"        to = "/trajectory_generator/trajectory"/>
+	        <remap  from = "~odometry"          to = "/odom"/>
+
+	        <!-- subscribed topics -->
+	        <remap  from = "~position_command"  to = "/position_cmd"/>
+	    </node>
+	</group>
+
+	<node if="$(arg enable_djisim)" 
+		pkg="n1ctrl" type="n1_sim_helper.py" name="n1_sim_helper" output="screen">
+		<remap from="~odom" to="/odom" />
+		<remap from="~imu" to="/djiros/imu" />
+		<remap from="~velo" to="/djiros/velo" />
+		<remap from="~gps" to="/djiros/gps" />
+	</node>
+
+</launch>

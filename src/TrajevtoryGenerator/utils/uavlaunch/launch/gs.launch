@@ -1,0 +1,36 @@
+<launch>
+	<arg name="enable_ctrl_vis" default="true" />
+	<arg name="enable_laser_mono_vis" default="false" />
+	<arg name="enable_traj_vis" default="false" />
+
+	<group if="$(arg enable_ctrl_vis)">
+		<param 
+			name="robot_description" 
+			command="$(find xacro)/xacro.py $(find uavlaunch)/model/m100.urdf.xacro" />
+		
+		<node 
+			name="rviz_ctrl" 
+			pkg="rviz" 
+			type="rviz" 
+			args="-d $(find uavlaunch)/config/ctrl.rviz" 
+			output="screen"/>
+	</group>
+
+	<group if="$(arg enable_laser_mono_vis)">
+		<node name="rviz_estimator" 
+        	pkg="rviz" 
+        	type="rviz" 
+        	respawn="false"
+        	args="-d $(find uavlaunch)/config/laser_mono.rviz"/> 
+	</group>
+
+	<group if="$(arg enable_traj_vis)">
+		<node name="rviz_traj" 
+	        pkg="rviz" 
+	        type="rviz" 
+	        output="screen"
+	        args="-d $(find voxel_trajectory)/launch/rviz_config/rviz_config.rviz"/>
+    </group>
+
+			<!-- command="$(find xacro)/xacro.py $(find hector_quadrotor_description)/urdf/quadrotor.urdf.xacro" /> -->
+</launch>

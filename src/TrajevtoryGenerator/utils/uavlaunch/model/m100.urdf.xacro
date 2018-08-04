@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<robot 
+  name="M100"
+  xmlns:xacro="http://ros.org/wiki/xacro">
+
+    <!-- Main quadrotor link -->
+  <xacro:macro name="M100_macro">
+    <link name="body">
+      <inertial>
+        <mass value="1.477" />
+        <origin xyz="0 0 0" />
+        <inertia ixx="0.01152" ixy="0.0" ixz="0.0" iyy="0.01152" iyz="0.0" izz="0.0218" />
+      </inertial>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 -1.57" />
+        <geometry>
+          <mesh filename="package://uavlaunch/model/m100.dae"/>
+        </geometry>
+      </visual>
+
+    </link>
+
+  </xacro:macro>
+  <xacro:M100_macro/>
+</robot>

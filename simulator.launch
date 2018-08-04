@@ -1,0 +1,78 @@
+<launch>
+
+    <arg name="image_resx" value="320" />
+    <arg name="image_resy" value="240" />
+    <arg name="frame_rate" value="20.0" />
+
+    <arg name="init_x" value="0.0" />
+    <arg name="init_y" value="-2.2" />
+    <arg name="init_z" value="0.7" />
+    <arg name="init_yaw" value="-1.57" />
+
+    <arg name="keyframe_stepsize" value="20" />
+
+    <arg name="output_dir" value="/home/chengwei/Projects/Simulator/result" />
+
+    <arg name="master_ip" value="10.8.5.254" />
+
+<!-- trajectory related -->
+<node pkg="trajectory_generator" type="trajectory_generator" name="trajectory_generator" output="screen">
+
+    <param name="init_x" type="double" value="$(arg init_x)" />
+    <param name="init_y" type="double" value="$(arg init_y)" />
+    <param name="init_z" type="double" value="$(arg init_z)" />
+    <param name="init_yaw" type="double" value="$(arg init_yaw)" />
+    <param name="odom_rate" type="double" value="$(arg frame_rate)" />
+    <param name="keyframe_stepsize" type="int" value="$(arg keyframe_stepsize)" />
+    <param name="output_dir" type="str" value="$(arg output_dir)" />
+
+    <!--<remap from="~DroneOdometry" to="/DroneOdometry" />-->
+	<remap from="~Waypoints" to="/Waypoints" />
+	<remap from="~position_cmd" to="/position_cmd" />
+	<remap from="~path" to="/raw_path_vis" />
+	<remap from="~traj" to="/traj_path_vis" />
+	<remap from="~NodePointCloud" to="/NodePointCloud" />
+	<remap from="~odom_traj" to="/odom_traj_vis" />
+	<remap from="~cmd_traj" to="/cmd_traj_vis" />
+</node>
+ 
+
+<!-- quadrotor virtual uav node -->
+<node pkg="virtual_uav"
+    name="virtual_uav_node"
+    type="virtual_uav_node"
+    output="screen">
+    <param name="save_depth_log" type="bool" value="true" />
+    <param name="image_width" type="int" value="$(arg image_resx)" />
+    <param name="image_height" type="int" value="$(arg image_resy)" />
+    <param name="odom_rate" type="double" value="$(arg frame_rate)" />
+    <param name="output_dir" type="str" value="$(arg output_dir)" />
+    <param name="master_ip" type="str" value="$(arg master_ip)" />
+
+    <remap from="~position_cmd" to="/position_cmd"/>
+    <!-- <remap from="~DroneOdometry" to="/visual_slam/odom"/> -->
+    <remap from="~goal" to="/goal"/>
+    <remap from="~Waypoints" to="/Waypoints"/>
+    <remap from="~NodePointCloud" to="/NodePointCloud" />
+</node>
+
+<!-- recorder related -->
+
+<node pkg="rviz" 
+    name="visualization" 
+    type="rviz" 
+    output="screen"/>
+
+<node pkg="rosbag"
+    type="record"
+    name="rosbag_record_visualization"
+    args="-a -o ../Projects/Simulator/result/rosrecorder/" />
+
+    <!--args="&#45;&#45;init_camera_pose\ $(arg init_x),$(arg init_y),$(arg init_z),$(arg init_yaw)\ &#45;&#45;output_dir\ $(arg output_dir)"-->
+<node pkg="virtual_uav"
+      type="my_simulator_run.sh"
+      name="my_simulator"
+      args="--init_camera_pose\ ($(arg init_x),$(arg init_y),$(arg init_z),$(arg init_yaw))\ --output_dir\ $(arg output_dir)\ --resx\ $(arg image_resx)\ --resy\ $(arg image_resy)\ --keyframe_stepsize\ $(arg keyframe_stepsize)"
+      output="screen">
+    </node>
+</launch>

@@ -1,0 +1,95 @@
+<launch>             
+
+  <!-- Multi-Sensor UKF -->        
+  <node pkg="multi_sensor_ukf"
+        name="multi_sensor_ukf"
+        type="quadrotor_ukf"       
+        output="screen">
+    <!--<remap from="~odom_gps"    to="TODO"/>-->    
+    <!--<remap from="~odom_vision" to="TODO"/>-->
+    <remap from="~imu"         to="/djiros/imu"/>
+    <!-- <remap from="~odom_laser"  to="/laser_pose_estimator/odom"/>     -->
+    <!-- <remap from="~odom_flow"   to="/monocular_velocity_estimator/odom"/> -->
+    <!-- <remap from="~odom_vision"   to="~odom_vision"/> -->
+    <remap from="~odom_vo"      to="/self_calibration_estimator/d_odometry"/>
+    <!-- <remap from="~height_rel"  to="/sonar/height"/> -->
+    <!--<remap from="~height_abs"  to="/sonar/height"/>-->
+    <param name="is_init_gps" value="false"/>                          
+    <param name="is_init_vo" value="true"/>                          
+    <param name="is_init_laser" value="false"/>                          
+    <param name="is_init_vision_pose" value="false"/>                          
+  </node>  
+  
+  <!-- Map Server -->           
+
+  <!-- <node pkg="map_server"
+        name="map_visualization"
+        type="map_visualization"
+        output="screen">
+    <remap from="~dmap2d" to="/laser_pose_estimator/dmap"/>
+  </node>   -->
+  
+  <!-- Visualization & TF -->
+  <node pkg="odom_visualization"
+        name="odom_visualization_ukf_multi"
+        type="odom_visualization"       
+        output="screen">
+    <remap from="~odom" to="/multi_sensor_ukf/odom"/>
+    <param name="color/a" value="0.8"/>    
+    <param name="color/r" value="1.0"/>        
+    <param name="color/g" value="0.0"/>        
+    <param name="color/b" value="0.0"/>       
+    <param name="cross_config"        value="true"/>      
+    <param name="covariance_scale"    value="100.0"/>         
+    <param name="covariance_position" value="true"/>     
+    <param name="covariance_velocity" value="true"/>                                               
+    <param name="covariance_color"    value="false"/>                                                   
+  </node>         
+
+   <!-- <node pkg="odom_visualization"
+        name="odom_visualization_ukf_laser"
+        type="odom_visualization"       
+        output="screen">
+    <remap from="~odom" to="/multi_sensor_ukf/debug"/>
+    <param name="color/a" value="0.8"/>    
+    <param name="color/r" value="0.0"/>        
+    <param name="color/g" value="0.0"/>        
+    <param name="color/b" value="1.0"/>       
+    <param name="cross_config"        value="true"/>      
+    <param name="covariance_scale"    value="100.0"/>         
+    <param name="covariance_position" value="true"/>     
+    <param name="covariance_velocity" value="true"/>                                               
+    <param name="covariance_color"    value="false"/>                                                   
+  </node>     -->
+
+ <!-- <node name="rviz" 
+        pkg="rviz" 
+        type="rviz" 
+        respawn="false"
+        args="-d $(find laser_mono_launch)/rviz_config.rviz"/> 
+-->
+
+  <node name="tf_assist" pkg="uav_utils" type="tf_assist.py" output="screen">
+    <param name="~converter0/frame_id_in" value="/map" />
+    <param name="~converter0/frame_id_out" value="world" />
+    <param name="~converter0/broadcast_tf" value="true" />
+    <param name="~converter0/body_frame_id" value="body" />
+    <param name="~converter0/intermediate_frame_id" value="intermediate" />
+    <param name="~converter0/world_frame_id" value="world" />
+    <remap from="~converter0/in_odom" to="/multi_sensor_ukf/odom" />    
+    <remap from="~converter0/out_odom" to="/odom" />
+    <remap from="~converter0/out_path" to="/odom/path" />
+  </node>
+
+
+  <include file="$(find self_calibration_estimator)/launch/online.launch" />
+
+<!--
+   <node pkg="image_view"
+        name="image_view"
+        type="image_view"       
+        output="screen">
+    <remap from="image" to="/camera/image"/>
+  </node>     
+-->
+</launch>

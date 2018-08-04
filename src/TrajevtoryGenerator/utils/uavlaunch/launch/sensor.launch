@@ -1,0 +1,91 @@
+<launch>
+
+    <arg name="enable_camera" default="true" />
+    <arg name="enable_color_camera" default="false" />
+    <arg name="enable_laserscan" default="true" />
+    <arg name="enable_djiros" default="true" />
+    <arg name="enable_imu_3dm_gx4" default="false" />
+    <arg name="enable_sonarros" default="false" />
+    <arg name="enable_laserecho" default="false" />
+
+    <!-- Camera -->
+    <group if="$(arg enable_camera)">
+        <include file="$(find bluefox2)/launch/bluefox2.launch">
+            <arg name="node_name" value="camera" />
+            <arg name="fps" value="50.0" />
+            <arg name="gain" value="1.0" />
+            <arg name="use_auto_exposure" value="true" />
+            <arg name="cam_cnt" value="1" />
+            <arg name="seriala" value="25001482" />
+            <!-- <arg name="serialb" value="25000704" /> -->
+            <!-- <arg name="serialc" value="25001482" /> -->
+            <arg name="exposure_time_usa" value="10000" />
+            <!-- <arg name="exposure_time_usb" value="10000" /> -->
+            <!-- <arg name="exposure_time_usc" value="10000" /> -->
+            <arg name="pub_cnt" value="1" />
+            <arg name="mask0" value="a" />
+            <!-- <arg name="mask1" value="c" /> -->
+            <arg name="mask0_topic" value="image" />
+            <!-- <arg name="mask1_topic" value="image" /> -->
+        </include>
+        <node if="$(arg enable_color_camera)"
+            pkg="bluefox2_full"       type="single_node" name="color_camera" output="log">
+            <param name="expose_us"     type="int"      value="12000"/>
+            <param name="identifier"    type="string"   value="29900616"/>
+            <param name="frame_id"      type="string"   value="camera"/>
+            <param name="camera_name"   type="string"   value="camera"/>
+            <param name="fps"           type="double"   value="20.0"/>
+            <param name="color"         type="bool"     value="true"/>
+            <param name="aec"           type="bool"     value="false"/>
+            <param name="cbm"           type="bool"     value="true"/>
+            <param name="ctm"           type="bool"     value="true"/>
+            <param name="dcfm"          type="int"      value="0"/>
+            <param name="hdr"           type="bool"     value="true"/>
+            <param name="wbp"           type="int"      value="6"/>
+            <param name="r_gain"        type="double"   value="1.0"/>
+            <param name="g_gain"        type="double"   value="1.165"/>
+            <param name="b_gain"        type="double"   value="3.0"/>
+            <param name="gain_db"       type="double"   value="1.0"/>
+            <param name="boost"         type="bool"     value="true"/>
+            <param name="mm"            type="int"      value="0"/>
+        </node>
+    </group>
+
+    <!-- laserscan -->
+    <group if="$(arg enable_laserscan)">
+        <node pkg="urg_node" type="urg_node" name="laserscan" output="screen">
+            <param name="ip_address" type="string" value="192.168.0.10" />
+            <param name="ip_port" type="string" value="10940" />
+            <param name="frame_id" type="string" value="laser" />
+            <param name="calibrate_time" type="bool" value="false" />
+            <remap from="scan" to="/scan/raw" />
+        </node>
+
+        <node if="true" pkg="laser_splitter" type="laser_splitter.py" name="laser_splitter" output="screen">
+            <remap from="~scan_in" to="/scan/raw" />
+            <remap from="~scan_out" to="/scan" />
+            <remap from="~height" to="/scan/height" />
+
+            <param name="~laser_range_upper_limit"  type="double" value="1.9199" />
+            <param name="~height_range_lower_limit" type="double" value="2.094" />
+            <param name="~height_range_upper_limit" type="double" value="2.181" />
+            <param name="~height_offset"  type="double" value="0.435" />
+        </node>
+    </group>
+
+
+    <include if="$(arg enable_djiros)" file="$(find djiros)/launch/djiros.launch" />
+    <include if="$(arg enable_imu_3dm_gx4)" file="$(find imu_3dm_gx4)/launch/imu.launch" />
+
+    <node if="$(arg enable_laserecho)" pkg="height_laser" type="height_laser_node" name="laserecho" output="screen">
+        <param name="devname" type="string" value="/dev/ttyUSBLaser"/>
+        <remap from="~height" to="/laserecho/height" />
+    </node>
+
+    <node if="$(arg enable_sonarros)" pkg="sonarros" type="maxsonar.py" name="maxsonar" output="screen">
+        <param name="devname" type="string" value="/dev/ttyUSBSonar"/>
+        <param name="baudrate" type="int" value="9600"/>
+        <remap from="~height" to="/sonar/height" />
+    </node>
+
+</launch>
