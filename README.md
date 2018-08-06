@@ -18,7 +18,3 @@ This repository is the implementation of simulation platform for active human re
 
 # run
 roslaunch simulator.launch
-numpy
-opencv-python
-run
-roslaunch simulator.launch
