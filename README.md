@@ -2,7 +2,10 @@
 
 This repository is the implementation of simulation platform for active human reconstruction and motion capture in following publications
 
-iHuman3D: Intelligent Human Body 3D Reconstruction using a Single Flying Camera
+* iHuman3D: Intelligent Human Body 3D Reconstruction using a Single Flying Camera 
+  * [Project Page](http://www.luvision.net/iHuman3D/) 
+  * [Paper](http://www.luvision.net/iHuman3D/iHuman3D_camear_ready.pdf)
+
 
 # install and requirement
 * [ROS](http://wiki.ros.org/indigo/Installation/Ubuntu) (only indigo tested)
@@ -14,4 +17,8 @@ iHuman3D: Intelligent Human Body 3D Reconstruction using a Single Flying Camera
   * opencv-python 
 
 # run
+roslaunch simulator.launch
+numpy
+opencv-python
+run
 roslaunch simulator.launch
