@@ -17,9 +17,6 @@ This repository is the implementation of simulation platform for active human re
 * [armadillo](http://arma.sourceforge.net/)
 * [blender](http://download.blender.org/release/Blender2.78/blender-2.78a-linux-glibc211-x86_64.tar.bz2)
 * [libzmq](https://github.com/zeromq/libzmq)
-* python3
-  * numpy
-  * opencv-python 
 
 # run
 roslaunch simulator.launch
