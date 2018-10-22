@@ -24,6 +24,6 @@ This repository is the implementation of simulation platform for active human re
 # run
 roslaunch simulator.launch
 
-# reference
+# ack
 * Synthetic Human Model: [Learning from Synthetic Humans (SURREAL)](https://github.com/gulvarol/surreal)
 * Trajectory Planner: [Online Safe Trajectory Generation For Quadrotors Using Fast Marching Method and Bernstein Basis Polynomial](https://github.com/HKUST-Aerial-Robotics/Btraj)
