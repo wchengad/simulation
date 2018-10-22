@@ -1,6 +1,6 @@
 # Simulation platform for active human reconstruction and motion capture
 
-This repository is the implementation of simulation platform for active human reconstruction and motion capture in following publications
+This repository is the implementation of simulation platform for active human reconstruction and motion capture in following publication / pre-print
 
 * iHuman3D: Intelligent Human Body 3D Reconstruction using a Single Flying Camera 
   * [Project Page](http://www.luvision.net/iHuman3D/) 
@@ -13,7 +13,7 @@ This repository is the implementation of simulation platform for active human re
   * [Code (MoCap)](https://github.com/wchengad/FlyFusion)
 
 # install and requirement
-* [ROS](http://wiki.ros.org/indigo/Installation/Ubuntu) (only indigo tested)
+* [ROS](http://wiki.ros.org/indigo/Installation/Ubuntu) (only Ros indigo with Ubuntu 14.04 LTS tested)
 * [armadillo](http://arma.sourceforge.net/)
 * [blender](http://download.blender.org/release/Blender2.78/blender-2.78a-linux-glibc211-x86_64.tar.bz2)
 * [libzmq](https://github.com/zeromq/libzmq)
