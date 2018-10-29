@@ -19,7 +19,10 @@ This repository is the implementation of simulation platform for active human re
 * [libzmq](https://github.com/zeromq/libzmq)
 
 # run
+```
+catkin_make
 roslaunch simulator.launch
+```
 
 # ack
 * Synthetic Human Model: [Learning from Synthetic Humans (SURREAL)](https://github.com/gulvarol/surreal)
